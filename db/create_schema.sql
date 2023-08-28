@@ -29,6 +29,7 @@ create table PRXMBDATA
   /* Первичный ключ */
   constraint C_PRXMBDATA_PK primary key(ID)
 );
+/
 
 /* Триггер перед добавлением */
 create or replace trigger T_PRXMBDATA_BINSERT
@@ -42,6 +43,10 @@ begin
   /* Установка использования временной таблицы  */
   PKG_TEMP.SET_TEMP_USED('PRXMBDATA', :new.IDENT);
 end;
+/
+
+show errors trigger T_PRXMBDATA_BINSERT;
+/
 
 /* Базовое добавление записи шины сообщений */
 create or replace procedure P_PRXMBDATA_BINSERT
@@ -53,6 +58,10 @@ as
 begin
   insert into PRXMBDATA (ID, REQUEST) values (sID, bREQUEST);
 end;
+/
+
+show errors procedure P_PRXMBDATA_BINSERT;
+/
 
 /* Базовое добавление записи шины сообщений (в автономной транзакции) */
 create or replace procedure P_PRXMBDATA_BINSERT_AT
@@ -71,6 +80,10 @@ begin
 
   commit;
 end;
+/
+
+show errors procedure P_PRXMBDATA_BINSERT_AT;
+/
 
 /* PG: Базовое добавление записи шины сообщений (в автономной транзакции) */
 create or replace procedure P_PRXMBDATA_BINSERT_AT$PG
@@ -82,6 +95,10 @@ as
 begin
   P_NECESSARY_RECREATE_STABLE('P_PRXMBDATA_BINSERT_AT');
 end;
+/
+
+show errors procedure P_PRXMBDATA_BINSERT_AT$PG;
+/
 
 /* Базовое исправление записи шины сообщений */
 create or replace procedure P_PRXMBDATA_BUPDATE
@@ -103,6 +120,10 @@ begin
     P_EXCEPTION(0, 'Запись шины сообщений "%s" не найдена.', sID);
   end if;
 end;
+/
+
+show errors procedure P_PRXMBDATA_BUPDATE;
+/
 
 /* Базовое исправление записи шины сообщений (в автономной транзакции) */
 create or replace procedure P_PRXMBDATA_BUPDATE_AT
@@ -124,6 +145,10 @@ begin
 
   commit;
 end;
+/
+
+show errors procedure P_PRXMBDATA_BUPDATE_AT;
+/
 
 /* PG: Базовое исправление записи шины сообщений (в автономной транзакции) */
 create or replace procedure P_PRXMBDATA_BUPDATE_AT$PG
@@ -137,6 +162,10 @@ as
 begin
   P_NECESSARY_RECREATE_STABLE('P_PRXMBDATA_BUPDATE_AT');
 end;
+/
+
+show errors procedure P_PRXMBDATA_BUPDATE_AT$PG;
+/
 
 /* Пакет для работы с шиной сообщений */
 create or replace package PKG_PRXMB
@@ -185,6 +214,10 @@ as
     sNOTE         in varchar2   -- текст ошибки
   );
 end;
+/
+
+show errors package PKG_PRXMB;
+/
 
 /* Пакет для работы с шиной сообщений */
 create or replace package body PKG_PRXMB
@@ -308,6 +341,10 @@ as
     P_PRXMBDATA_BUPDATE_AT(sID, null, 2, sNOTE);
   end;
 end;
+/
+
+show errors package body PKG_PRXMB;
+/
 
 /* Внутренний пакет для работы с очередью сообщений */
 create or replace package PKG_PRXMQ_INT
@@ -323,6 +360,10 @@ as
                       default null  -- параметры URL
   );
 end;
+/
+
+show errors package PKG_PRXMQ_INT;
+/
 
 /* Внутренний пакет для работы с очередью сообщений */
 create or replace package body PKG_PRXMQ_INT
@@ -368,8 +409,13 @@ as
       P_EXCEPTION(0, 'Не удалось поставить сообщение в очередь: %s.', PKG_STATE.SQL_ERRM);
   end;
 end;
+/
+
+show errors package body PKG_PRXMQ_INT;
+/
 
 grant execute on PKG_PRXMB to PUBLIC;
+/
 
 /* PG: Внутренний пакет для работы с очередью сообщений */
 create or replace package PKG_PRXMQ_INT$PG
@@ -385,6 +431,10 @@ as
                       default null  -- параметры URL
   );
 end;
+/
+
+show errors package PKG_PRXMQ_INT$PG;
+/
 
 /* PG: Внутренний пакет для работы с очередью сообщений */
 create or replace package body PKG_PRXMQ_INT$PG
@@ -404,6 +454,10 @@ as
     P_NECESSARY_RECREATE_VOLATILE('PKG_PRXMQ_INT.SEND'); 
   end;
 end;
+/
+
+show errors package body PKG_PRXMQ_INT$PG;
+/
 
 /* Пакет для работы с очередью сообщений */
 create or replace package PKG_PRXMQ
@@ -415,6 +469,10 @@ as
     sMESSAGE      in varchar2   -- сообщение
   );
 end;
+/
+
+show errors package PKG_PRXMQ;
+/
 
 /* Пакет для работы с очередью сообщений */
 create or replace package body PKG_PRXMQ
@@ -446,6 +504,10 @@ as
     PKG_PRXMQ_INT.SEND(sBASE_URL, 'POST', 'application/json', TO_JSON(sTOPIC, sMESSAGE));
   end;
 end;
+/
+
+show errors package body PKG_PRXMQ;
+/
 
 /* Начальная загрузка системных параметров */
 create or replace procedure P_PRX_SYSTEM_INIT_OPTIONS
@@ -479,9 +541,14 @@ begin
     dDATE_VALUE     => null
   );
 end;
+/
+
+show errors procedure P_PRX_SYSTEM_INIT_OPTIONS;
+/
 
 /* Выполнение начальной загрузки системных параметров */
 begin
   P_PRX_SYSTEM_INIT_OPTIONS;
   commit;
 end;
+/
