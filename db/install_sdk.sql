@@ -117,7 +117,7 @@ begin
    where ID = sID;
 
   if (SQL%NOTFOUND) then
-    P_EXCEPTION(0, 'Запись шины сообщений "%s" не найдена.', sID);
+    P_EXCEPTION(0, 'Запись шины сообщений с идентификатором "%s" не найдена.', sID);
   end if;
 end;
 /
@@ -234,7 +234,7 @@ as
       select REQUEST into bREQUEST from PRXMBDATA where ID = sID;
     exception
       when NO_DATA_FOUND then
-        P_EXCEPTION(0, 'Запись шины сообщений с идентификатором "%s" не найдена', sID);
+        P_EXCEPTION(0, 'Запись шины сообщений с идентификатором "%s" не найдена.', sID);
     end;
   end;
 
@@ -262,7 +262,7 @@ as
       select RESPONSE into bRESPONSE from PRXMBDATA where ID = sID;
     exception
       when NO_DATA_FOUND then
-        P_EXCEPTION(0, 'Запись шины сообщений с идентификатором "%s" не найдена', sID);
+        P_EXCEPTION(0, 'Запись шины сообщений с идентификатором "%s" не найдена.', sID);
     end;
   end;
 
@@ -322,7 +322,7 @@ as
     end loop;
 
     if (rDATA.STATUS = 0) then
-      P_EXCEPTION(nFLAG_SMART, 'Таймаут (%s секунд) ожидания ответа шины сообщений с идентификатором "%s" в очереди сообщений "%s" истек.', nTIMEOUT, sID, sTOPIC);
+      P_EXCEPTION(nFLAG_SMART, 'Превышено время ожидания ответа (%s секунд) на сообщение с идентификатором "%s" в очереди сообщений "%s".', nTIMEOUT, sID, sTOPIC);
     end if;
 
     if (rDATA.STATUS = 2) then
@@ -344,6 +344,9 @@ end;
 /
 
 show errors package body PKG_PRXMB;
+/
+
+grant execute on PKG_PRXMB to PUBLIC;
 /
 
 /* Внутренний пакет для работы с очередью сообщений */
@@ -396,7 +399,7 @@ as
     rRESPONSE := UTL_HTTP.GET_RESPONSE(rREQUEST);
     if rRESPONSE.STATUS_CODE not in (200, 201, 202) then
       UTL_HTTP.END_RESPONSE(rRESPONSE);
-      P_EXCEPTION(0, 'Внутренняя ошибка обработки запроса: HttpStatusCode: %s.', rRESPONSE.STATUS_CODE);
+      P_EXCEPTION(0, 'Внутренняя ошибка обработки запроса: %s.', rRESPONSE.STATUS_CODE);
     end if;
 
     UTL_HTTP.READ_TEXT(rRESPONSE, sRESPONSE_VAL);
@@ -412,9 +415,6 @@ end;
 /
 
 show errors package body PKG_PRXMQ_INT;
-/
-
-grant execute on PKG_PRXMB to PUBLIC;
 /
 
 /* PG: Внутренний пакет для работы с очередью сообщений */
